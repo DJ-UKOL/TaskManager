@@ -1,5 +1,4 @@
 // Менеджер заданий
-
 use chrono::{DateTime, Local};
 
 // Приритетность задания
@@ -45,6 +44,64 @@ impl Task {
             self.add_time.format("%d-%m-%Y %H:%M:%S"),
             self.description
         );
+    }
+}
+
+// Структура менеджера задач
+struct TasksManagers {
+    tasks: Vec<Task>
+}
+
+// Функционал (добавление, удаление, поиск и т.д)
+impl TasksManagers {
+
+    // Создание
+    fn new() -> Self {
+        Self { tasks: vec![]}
+    }
+
+    // Добавление
+    fn add_task(&mut self, task: Task) {
+        self.tasks.push(task);
+    }
+
+    // Вывод информации о задачах
+    fn print_tasks(&self) {
+        for task in &self.tasks {
+            task.print_task();
+        }
+    }
+
+    // Удаление задачи
+    fn remove_task(&mut self, name: &str) -> Result<String, String> {
+        if let Some(index) = self.find_task(name) {
+            self.tasks.remove(index);
+            Ok(format!("Task \"{}\" removed successfully", name))
+        } else {
+            Err(format!("Task with name \"{}\" doesn't exist", name))
+        }
+    }
+
+    // Поиск задачи
+    fn find_task(&self, name: &str) -> Option<usize> {
+        self.tasks.iter().position(|task| task.name == name)
+    }
+
+    // Редактирование
+    fn edit_task(&mut self, name: &str, updated_task: Task) -> Result<String, String>{
+        if let Some(index) = self.find_task(name) {
+            match self.tasks.get_mut(index) {
+                None => Err("Error borrowing task".to_owned()),
+                Some(task) => {
+                    task.name = updated_task.name;
+                    task.description = updated_task.description;
+                    task.priority = updated_task.priority;
+                    Ok(format!("Task \"{}\" updated successfully", name))
+                }
+            }
+        } else {
+            Err(format!("Task with name \"{}\" doesn't exist", name))
+        }
     }
 }
 
